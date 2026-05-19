@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="5dp">
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_setDefaultDataSubId0"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="setDefaultDataSubId(0)"
+                    android:visibility="visible" />
+
+                <Button
+                    android:id="@+id/btn_setDefaultDataSubId1"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="setDefaultDataSubId(1)"
+                    android:visibility="visible" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_setForceLockScreen"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="setForceLockScreen"
+                    android:visibility="visible" />
+
+                <Button
+                    android:id="@+id/btn_setLockSreenNon"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="setLockSreenNon"
+                    android:visibility="visible" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_setLanguage"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="setLanguage"
+                    android:visibility="visible" />
+
+                <Button
+                    android:id="@+id/btn_getPhoneInfo"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="getPhoneInfo" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_doubleclick_enable"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="Double Click(Enable)" />
+
+                <Button
+                    android:id="@+id/btn_doubleclick_disable"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="Double Click(Dsable)" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_keyboard_state"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="Keyboard state" />
+
+                <Button
+                    android:id="@+id/btn_disable_keyboardswitch"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="Disable Keyboard Switch" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_enable_keyboardswitch"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="Enable Keyboard Switch" />
+
+                <Button
+                    android:id="@+id/btn_switch_keyboard_num"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="Switch Keyboard(NUM)" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_switch_keyboard_lower"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="Switch Keyboard(LOWER)" />
+
+                <Button
+                    android:id="@+id/btn_switch_keyboard_upper"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="Switch Keyboard(UPPER)" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_lockTaskMode_on"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="LockTaskMode On"
+                    android:visibility="visible" />
+
+                <Button
+                    android:id="@+id/btn_lockTaskMode_off"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="LockTaskMode Off"
+                    android:visibility="visible" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_switchWifi_on"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="switchWifi(On)"
+                    android:visibility="visible" />
+
+                <Button
+                    android:id="@+id/btn_switchWifi_off"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="switchWifi(Off)"
+                    android:visibility="visible" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_switchBT_on"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="switchBT(On)"
+                    android:visibility="visible" />
+
+                <Button
+                    android:id="@+id/btn_switchBT_off"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="switchBT(Off)"
+                    android:visibility="visible" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_switchAirplaneMode_on"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="switchAirplaneMode(On)"
+                    android:visibility="visible" />
+
+                <Button
+                    android:id="@+id/btn_switchAirplaneMode_off"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="switchAirplaneMode(Off)"
+                    android:visibility="visible" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_forgetAllWifi"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="forgetAllWifi"
+                    android:visibility="visible" />
+
+                <Button
+                    android:id="@+id/btn_checkNetworkStatus"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="checkNetworkStatus"
+                    android:visibility="visible" />
+            </LinearLayout>
+
+            <include layout="@layout/layout_output" />
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

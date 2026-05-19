@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="label_size">
+        <item>50*30mm</item>
+        <item>40*30mm</item>
+        <item>30*30mm</item>
+        <item>50*40mm</item>
+        <item>25*15mm</item>
+    </string-array>
+</resources>

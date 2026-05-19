@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="5dp">
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:visibility="visible">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TTF Path" />
+
+                <EditText
+                    android:id="@+id/editText_ttf"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1" />
+
+                <Button
+                    android:id="@+id/btn_path"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_weight="0.4"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="Select" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:visibility="visible">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="GRAY(-6-6)" />
+
+                <EditText
+                    android:id="@+id/editText_gray"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:inputType="number" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:visibility="visible">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SPEED(10-20)" />
+
+                <EditText
+                    android:id="@+id/editText_speed"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:inputType="number"
+                    android:maxLength="2" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:visibility="visible">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="COUNT" />
+
+                <EditText
+                    android:id="@+id/editText_count"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:inputType="number"
+                    android:text="0" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp50"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:padding="@dimen/dp5">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical|left"
+                    android:paddingLeft="@dimen/dp5"
+                    android:text="Label Size"
+                    android:textStyle="bold" />
+
+                <Spinner
+                    android:id="@+id/spinner_label"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="10dp"
+                    android:layout_weight="2"
+                    android:entries="@array/label_size"
+                    android:gravity="center"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_startPrint"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="startPrint" />
+
+                <Button
+                    android:id="@+id/btn_startPrint_Bitmap"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="startPrint_PaintView" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_startPrint_Html"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="startPrint_Html" />
+
+                <Button
+                    android:id="@+id/btn_startPrint_Label"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="startPrint_Label" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_getStatus"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="getStatus" />
+
+                <Button
+                    android:id="@+id/btn_feedLine"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="feedLine" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_paperFeed"
+                    style="@style/button_style"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round"
+                    android:onClick="onClick"
+                    android:text="paperFeed" />
+            </LinearLayout>
+
+            <include layout="@layout/layout_output" />
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

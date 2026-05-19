@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="5dp">
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/btn_emvnfc"
+                style="@style/button_style"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/bg_round"
+                android:onClick="onClick"
+                android:text="EMV"
+                android:visibility="visible" />
+
+            <Button
+                android:id="@+id/btn_pinpad"
+                style="@style/button_style"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/bg_round"
+                android:onClick="onClick"
+                android:text="Pinpad"
+                android:visibility="visible" />
+
+            <Button
+                android:id="@+id/btn_print"
+                style="@style/button_style"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/bg_round"
+                android:onClick="onClick"
+                android:text="Printer"
+                android:visibility="visible" />
+
+            <Button
+                android:id="@+id/btn_Scanner"
+                style="@style/button_style"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/bg_round"
+                android:onClick="onClick"
+                android:text="Scanner"
+                android:visibility="visible" />
+
+            <Button
+                android:id="@+id/btn_Scanner_custom"
+                style="@style/button_style"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/bg_round"
+                android:onClick="onClick"
+                android:text="Scanner Custom"
+                android:visibility="visible" />
+
+            <Button
+                android:id="@+id/btn_MagCardReader"
+                style="@style/button_style"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/bg_round"
+                android:onClick="onClick"
+                android:text="MagCard Reader"
+                android:visibility="visible" />
+
+            <Button
+                android:id="@+id/btn_InsertCardReader"
+                style="@style/button_style"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/bg_round"
+                android:onClick="onClick"
+                android:text="IC Card Reader"
+                android:visibility="visible" />
+
+            <Button
+                android:id="@+id/btn_sle"
+                style="@style/button_style"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/bg_round"
+                android:onClick="onClick"
+                android:text="SLE(4428/4436/4442)"
+                android:visibility="visible" />
+
+            <Button
+                android:id="@+id/btn_RFCardReader"
+                style="@style/button_style"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/bg_round"
+                android:onClick="onClick"
+                android:text="RF Card Reader"
+                android:visibility="visible" />
+
+            <Button
+                android:id="@+id/btn_Beeper"
+                style="@style/button_style"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/bg_round"
+                android:onClick="onClick"
+                android:text="Beeper"
+                android:visibility="visible" />
+
+            <Button
+                android:id="@+id/btn_Led"
+                style="@style/button_style"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/bg_round"
+                android:onClick="onClick"
+                android:text="LED"
+                android:visibility="visible" />
+
+            <Button
+                android:id="@+id/btn_serialport"
+                style="@style/button_style"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/bg_round"
+                android:onClick="onClick"
+                android:text="Serial"
+                android:visibility="visible" />
+
+            <Button
+                android:id="@+id/btn_install"
+                style="@style/button_style"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/bg_round"
+                android:onClick="onClick"
+                android:text="Silent Install"
+                android:visibility="visible" />
+
+            <Button
+                android:id="@+id/btn_system"
+                style="@style/button_style"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/bg_round"
+                android:onClick="onClick"
+                android:text="System"
+                android:visibility="visible" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

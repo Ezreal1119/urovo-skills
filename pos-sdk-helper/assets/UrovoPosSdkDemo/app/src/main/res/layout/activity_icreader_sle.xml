@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="5dp">
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RadioGroup
+                android:id="@+id/radioGroup_type"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/radio_sle4428"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:text="SLE 4428" />
+
+                <RadioButton
+                    android:id="@+id/radio_sle4436"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="SLE 4436" />
+
+                <RadioButton
+                    android:id="@+id/radio_sle4442"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="SLE 4442" />
+            </RadioGroup>
+
+            <RadioGroup
+                android:id="@+id/radioGroup_password"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/radio_verifyPassword"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:text="Verify Password" />
+
+                <RadioButton
+                    android:id="@+id/radio_changePassword"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Change Password" />
+            </RadioGroup>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:visibility="visible">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Address(0-256):" />
+
+                <EditText
+                    android:id="@+id/editText_address"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:inputType="number" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:visibility="visible">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Password:" />
+
+                <EditText
+                    android:id="@+id/editText_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:digits="0123456789abcdefABCDEF" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:visibility="visible">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Data:" />
+
+                <EditText
+                    android:id="@+id/editText_data"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:digits="0123456789abcdefABCDEF" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnSearchCard"
+                style="@style/button_style"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_round"
+                android:onClick="onClick"
+                android:text="SearchCard" />
+
+            <Button
+                android:id="@+id/btnPassword"
+                style="@style/button_style"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_round"
+                android:onClick="onClick"
+                android:text="Password" />
+
+            <Button
+                android:id="@+id/btnRead"
+                style="@style/button_style"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_round"
+                android:onClick="onClick"
+                android:text="Read" />
+
+            <Button
+                android:id="@+id/btnWrite"
+                style="@style/button_style"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_round"
+                android:onClick="onClick"
+                android:text="Write" />
+
+            <Button
+                android:id="@+id/btnStopSearch"
+                style="@style/button_style"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_round"
+                android:onClick="onClick"
+                android:text="StopSearch" />
+
+            <include layout="@layout/layout_output" />
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

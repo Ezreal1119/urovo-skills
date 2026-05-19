@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/dp5">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RadioGroup
+                android:id="@+id/radioGroup_camera"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/radio_front"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Front"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <RadioButton
+                    android:id="@+id/radio_back"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:text="Back"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <RadioButton
+                    android:id="@+id/radio_top"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Top"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+            </RadioGroup>
+
+            <CheckBox
+                android:id="@+id/checkbox_disableQR"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:padding="10dp"
+                android:text="Disable QR Code"
+                android:visibility="visible" />
+
+            <Button
+                android:id="@+id/btnStartScan"
+                style="@style/button_style"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_round"
+                android:onClick="onClick"
+                android:text="Start Scan"
+                android:visibility="visible" />
+
+            <include layout="@layout/layout_output" />
+        </LinearLayout>
+    </ScrollView>
+
+    <FrameLayout
+        android:id="@+id/layout_scan"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:id="@+id/ll_scan"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" />
+
+        <com.urovo.sdk.view.scan.ScanCaptureView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <CheckBox
+            android:id="@+id/checkbox_flash"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:background="@drawable/enter_bg"
+            android:padding="10dp"
+            android:text="Light ON"
+            android:textColor="@color/white"
+            android:visibility="visible" />
+
+    </FrameLayout>
+
+</LinearLayout>
