@@ -20,3 +20,11 @@ email
 mcp
 productivity
 software-development
+
+
+.DS_Store
+.curator_state
+.bundled_manifest
+.usage.json
+.usage.json.lock
+.curator_backups/

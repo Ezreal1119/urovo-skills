@@ -1,8 +1,0 @@
-{
-  "last_report_path": "/Users/patrickxu/.hermes/logs/curator/20260515-084211",
-  "last_run_at": "2026-05-15T08:42:11.920584+00:00",
-  "last_run_duration_seconds": 0.31654,
-  "last_run_summary": "auto: no changes; llm: skipped (no candidates)",
-  "paused": false,
-  "run_count": 1
-}
