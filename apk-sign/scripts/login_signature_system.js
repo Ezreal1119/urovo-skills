@@ -219,7 +219,18 @@ async function main() {
   info(`Signed APK file name: ${finalFileName}`);
 
   if (fs.existsSync(savePath)) {
-    throw new Error(`Signed APK already exists: ${savePath}`);
+    try {
+      info(
+        `Old signed APK already exists, delete it before new signing: ${savePath}`,
+      );
+      fs.unlinkSync(savePath);
+    } catch (err) {
+      throw new Error(
+        `Failed to delete existing signed APK: ${savePath}\n${
+          err && err.stack ? err.stack : String(err)
+        }`,
+      );
+    }
   }
 
   log("Launch browser");
