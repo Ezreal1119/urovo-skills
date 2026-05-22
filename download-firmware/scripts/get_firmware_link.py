@@ -6,6 +6,7 @@ import re
 import posixpath
 import fcntl
 from contextlib import contextmanager
+from datetime import datetime
 
 WORKSPACE = "/Volumes/SSD1T/SharedFiles/hermes_workspace"
 
@@ -19,8 +20,61 @@ SFTP_OPTS = [
 
 os.environ["SSHPASS"] = "Udxb*24081914"
 
+LOG_DIR = "/Users/patrickxu/logs/download-firmware"
+SCRIPT_NAME = "download_firmware"
+DEBUG_CONSOLE = False
+
+
+def get_date_string() -> str:
+    return datetime.now().strftime("%Y-%m-%d")
+
+
+def get_timestamp() -> str:
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
+def get_log_path() -> str:
+    return os.path.join(LOG_DIR, f"{SCRIPT_NAME}_{get_date_string()}.log")
+
+
+def ensure_log_dir() -> None:
+    os.makedirs(LOG_DIR, exist_ok=True)
+
+
+def write_log(level: str, message: str) -> None:
+    ensure_log_dir()
+
+    line = f"[{get_timestamp()}] [{level}] {message}\n"
+
+    with open(get_log_path(), "a", encoding="utf-8") as file:
+        file.write(line)
+
+
+def log(action: str) -> None:
+    message = f"[ACTION] {action}"
+
+    if DEBUG_CONSOLE:
+        print(message)
+
+    write_log("ACTION", action)
+
+
+def info(message: str) -> None:
+    if DEBUG_CONSOLE:
+        print(message)
+
+    write_log("INFO", message)
+
+
+def error_log(err) -> None:
+    message = str(err)
+
+    write_log("ERROR", message)
+
+
 def sftp_global_lock_path() -> str:
     return os.path.join(WORKSPACE, ".sftp_global.lock")
+
 
 def run_sftp(commands: list[str], timeout: int = 60) -> str:
     script = "\n".join(commands + ["bye"])
@@ -35,7 +89,13 @@ def run_sftp(commands: list[str], timeout: int = 60) -> str:
         + "\nEOF",
     ]
 
+    info("Run SFTP commands:")
+    for command in commands:
+        info(f"  {command}")
+    info(f"SFTP timeout: {timeout}")
+
     with file_lock(sftp_global_lock_path()):
+        log("SFTP global lock acquired")
         res = subprocess.run(
             cmd,
             capture_output=True,
@@ -43,13 +103,25 @@ def run_sftp(commands: list[str], timeout: int = 60) -> str:
             timeout=timeout,
             env=os.environ.copy(),
         )
+        log("SFTP command finished")
+
+    if res.stdout:
+        write_log("INFO", f"SFTP stdout:\n{res.stdout.strip()}")
+
+    if res.stderr:
+        write_log("INFO", f"SFTP stderr:\n{res.stderr.strip()}")
 
     if res.returncode != 0:
+        write_log("ERROR", f"SFTP failed with return code {res.returncode}")
         raise RuntimeError(res.stderr or res.stdout)
 
     return res.stdout + res.stderr
 
+
 def run_shell(command: list[str], timeout: int = 1800) -> str:
+    info(f"Run shell command: {' '.join(command)}")
+    info(f"Shell timeout: {timeout}")
+
     res = subprocess.run(
         command,
         capture_output=True,
@@ -59,17 +131,24 @@ def run_shell(command: list[str], timeout: int = 1800) -> str:
 
     output = res.stdout + res.stderr
 
+    if output:
+        write_log("INFO", f"Shell output:\n{output.strip()}")
+
     if res.returncode != 0:
+        write_log("ERROR", f"Shell command failed with return code {res.returncode}")
         raise RuntimeError(output)
 
     return output
 
 
 def sftp_ls(path: str) -> str:
+    info(f"List SFTP folder: {path}")
+
     return run_sftp([
         f'cd "{path}"',
         "ls -l",
     ])
+
 
 # ------------------------------------- #
 
@@ -77,12 +156,16 @@ def sftp_ls(path: str) -> str:
 def file_lock(lock_path: str):
     os.makedirs(os.path.dirname(lock_path), exist_ok=True)
 
+    info(f"Acquire file lock: {lock_path}")
+
     with open(lock_path, "w") as lock_file:
         fcntl.flock(lock_file, fcntl.LOCK_EX)
         try:
             yield
         finally:
             fcntl.flock(lock_file, fcntl.LOCK_UN)
+            info(f"Release file lock: {lock_path}")
+
 
 def format_size(size_bytes: int) -> str:
     units = ["B", "KB", "MB", "GB", "TB"]
@@ -97,12 +180,21 @@ def format_size(size_bytes: int) -> str:
 
 
 def prepare_firmware(firmware_path: str, size: int) -> None:
+    info(f"Prepare firmware: {firmware_path}")
+    info(f"Firmware size: {size}")
+
     firmware_file_name = posixpath.basename(firmware_path)
     lock_path = os.path.join(WORKSPACE, firmware_file_name + ".lock")
 
+    info(f"Firmware file name: {firmware_file_name}")
+    info(f"Firmware lock path: {lock_path}")
+
     with file_lock(lock_path):
         local_path = sftp_get(firmware_path, size)
+        info(f"Local firmware path ready: {local_path}")
+
         download_link = upload_to_r2(local_path)
+        info(f"Firmware uploaded link: {download_link}")
 
     print(f"Firmware Download link: (Size: {format_size(size)})")
     print(download_link)
@@ -110,22 +202,34 @@ def prepare_firmware(firmware_path: str, size: int) -> None:
     print("Firmware upgrade instruction:")
     print("https://cdn.patrick-shenzhen.org/urovo/manuals/How_to_upgrade_firmware-OS_UFS_SE.zip")
 
+
 # ------------------------------------- #
         
 def extract_internal_name(prompt: str) -> str | None:
+    info(f"Extract internal name from prompt: {prompt}")
+
     k388_match = re.search(r"k388pro", prompt, re.IGNORECASE)
     if k388_match:
+        info("Internal name matched: K388PRO")
         return "K388PRO"
 
     match = re.search(r"sq[a-zA-Z0-9]*", prompt, re.IGNORECASE)
     if not match:
+        info("No internal name matched")
         return None
 
-    return match.group(0).upper()
+    internal_name = match.group(0).upper()
+    info(f"Internal name matched: {internal_name}")
+
+    return internal_name
+
 
 def is_multiple_tasks(prompt: str) -> bool:
     matches = re.findall(r"sq[a-zA-Z0-9]*", prompt, re.IGNORECASE)
+    info(f"Multiple task detection matches: {matches}")
+
     return len(matches) >= 2
+
 
 # ------------------------------------- #
 
@@ -138,6 +242,7 @@ def prompt_contains(prompt: str, keyword: str) -> bool:
 
 
 def error(message: str) -> None:
+    write_log("ERROR", message)
     print(message)
     sys.exit(1)
 
@@ -145,11 +250,18 @@ def error(message: str) -> None:
 def select_by_firmware_type(options: dict[str, str], firmware_type: str) -> str:
     key = firmware_type.lower()
 
+    info(f"Select firmware type: {firmware_type}")
+    info(f"Available firmware options: {options}")
+
     if key in options:
-        return options[key]
+        selected = options[key]
+        info(f"Selected firmware path by key '{key}': {selected}")
+        return selected
 
     if "overseas" in options:
-        return options["overseas"]
+        selected = options["overseas"]
+        info(f"Selected overseas firmware path fallback: {selected}")
+        return selected
 
     error(f"No {firmware_type.upper()} firmware path for this model")
 
@@ -195,6 +307,8 @@ def parse_sftp_ls_entries(output: str) -> list[dict[str, str | int]]:
             "raw": line,
         })
 
+    info(f"Parsed SFTP entries count: {len(entries)}")
+
     return entries
 
 
@@ -206,6 +320,8 @@ def extract_six_digit_version(filename: str) -> int:
 
 
 def find_latest_zip_in_sftp_folder(remote_folder: str) -> tuple[str, int]:
+    info(f"Find latest zip in SFTP folder: {remote_folder}")
+
     output = sftp_ls(remote_folder)
     entries = parse_sftp_ls_entries(output)
 
@@ -213,6 +329,8 @@ def find_latest_zip_in_sftp_folder(remote_folder: str) -> tuple[str, int]:
         item for item in entries
         if item["type"] == "-" and str(item["name"]).lower().endswith(".zip")
     ]
+
+    info(f"Zip firmware count: {len(zip_files)}")
 
     if not zip_files:
         error(f"No zip firmware found in {remote_folder}")
@@ -229,7 +347,12 @@ def find_latest_zip_in_sftp_folder(remote_folder: str) -> tuple[str, int]:
     filename = str(selected["name"])
     size = int(selected["size"])
 
-    return f"{remote_folder.rstrip('/')}/{filename}", size
+    firmware_path = f"{remote_folder.rstrip('/')}/{filename}"
+
+    info(f"Selected latest firmware: {firmware_path}")
+    info(f"Selected latest firmware size: {size}")
+
+    return firmware_path, size
 
 
 def sftp_quote(value: str) -> str:
@@ -237,11 +360,19 @@ def sftp_quote(value: str) -> str:
 
 
 def sftp_get(remote_path: str, expected_size: int, timeout: int = 1200) -> str:
+    info(f"Start SFTP get: {remote_path}")
+    info(f"Expected size: {expected_size}")
+
     firmware_file_name = posixpath.basename(remote_path)
     remote_dir = posixpath.dirname(remote_path)
 
     final_path = os.path.join(WORKSPACE, firmware_file_name)
     temp_path = final_path + ".part"
+
+    info(f"Remote dir: {remote_dir}")
+    info(f"Firmware file name: {firmware_file_name}")
+    info(f"Final local path: {final_path}")
+    info(f"Temp local path: {temp_path}")
 
     os.makedirs(WORKSPACE, exist_ok=True)
 
@@ -249,17 +380,24 @@ def sftp_get(remote_path: str, expected_size: int, timeout: int = 1200) -> str:
     if os.path.exists(final_path):
         local_size = os.path.getsize(final_path)
 
+        info(f"Existing final file found: {final_path}")
+        info(f"Existing final file size: {local_size}")
+
         if local_size == expected_size:
+            info("Existing final file size matches expected size, use cache")
             return final_path
 
+        info("Existing final file size mismatch, remove final file")
         os.remove(final_path)
 
     # 2. Remove stale temp file
     if os.path.exists(temp_path):
+        info(f"Remove stale temp file: {temp_path}")
         os.remove(temp_path)
 
     # 3. Download to .part first
     try:
+        log("Download firmware to temp file")
         run_sftp(
             [
                 f"cd {sftp_quote(remote_dir)}",
@@ -267,8 +405,10 @@ def sftp_get(remote_path: str, expected_size: int, timeout: int = 1200) -> str:
             ],
             timeout=timeout,
         )
-    except Exception:
+    except Exception as exc:
+        write_log("ERROR", f"SFTP download failed: {exc}")
         if os.path.exists(temp_path):
+            info(f"Remove temp file after download failure: {temp_path}")
             os.remove(temp_path)
         raise
 
@@ -277,8 +417,10 @@ def sftp_get(remote_path: str, expected_size: int, timeout: int = 1200) -> str:
         error(f"Download failed: temp file not found: {temp_path}")
 
     temp_size = os.path.getsize(temp_path)
+    info(f"Downloaded temp file size: {temp_size}")
 
     if temp_size != expected_size:
+        info("Downloaded temp file size mismatch, remove temp file")
         os.remove(temp_path)
         error(
             f"Download failed: file size mismatch. "
@@ -286,15 +428,22 @@ def sftp_get(remote_path: str, expected_size: int, timeout: int = 1200) -> str:
         )
 
     # 5. Atomic replace
+    info(f"Atomic replace temp file to final file: {final_path}")
     os.replace(temp_path, final_path)
+
+    info(f"SFTP get completed: {final_path}")
 
     return final_path
 
+
 def upload_to_r2(local_path: str, timeout: int = 1800) -> str:
+    info(f"Upload to R2: {local_path}")
+
     if not os.path.exists(local_path):
         error(f"Upload failed: local file not found: {local_path}")
 
     firmware_file_name = os.path.basename(local_path)
+    info(f"Upload firmware file name: {firmware_file_name}")
 
     command = [
         "rclone",
@@ -317,16 +466,23 @@ def upload_to_r2(local_path: str, timeout: int = 1800) -> str:
 
     for attempt in range(1, 4):
         try:
+            log(f"Upload firmware to Cloudflare R2, attempt {attempt}")
             run_shell(command, timeout=timeout)
-            return build_public_url(firmware_file_name)
+            download_url = build_public_url(firmware_file_name)
+            info(f"Upload success: {download_url}")
+            return download_url
         except Exception as exc:
             last_error = str(exc)
+            write_log("ERROR", f"Upload attempt {attempt} failed:\n{last_error}")
 
     error(f"Upload failed after 3 attempts:\n{last_error}")
+
 
 def resolve_os_folder(prompt: str, internal_name: str, firmware_type: str) -> str:
     key = internal_name.upper()
     is_go = prompt_contains(prompt, "go")
+
+    info(f"Resolve OS folder: internal_name={internal_name}, firmware_type={firmware_type}, is_go={is_go}")
 
     os_path_map: dict[str, dict[str, str]] = {
         "SQ28W": {
@@ -482,20 +638,30 @@ def resolve_os_folder(prompt: str, internal_name: str, firmware_type: str) -> st
 
 
 def handle_os(prompt: str, internal_name: str, firmware_type: str) -> None:
+    info(f"Handle OS firmware: prompt={prompt}, internal_name={internal_name}, firmware_type={firmware_type}")
+
     folder = resolve_os_folder(prompt, internal_name, firmware_type)
+    info(f"Resolved OS folder: {folder}")
+
     firmware_path, size = find_latest_zip_in_sftp_folder(folder)
 
     prepare_firmware(firmware_path, size)
 
+
 # ------------------------------------- #
 
 def handle_se(prompt: str, internal_name: str) -> None:
+    info(f"Handle SE firmware: prompt={prompt}, internal_name={internal_name}")
+
     error("SE NOT SUPPORTED NOW")
+
 
 # ------------------------------------- #
 
 def resolve_base_folder(internal_name: str) -> str:
     key = internal_name.upper()
+
+    info(f"Resolve base folder: {internal_name}")
 
     base_path_map = {
         "SQ28W": "/os/i2000/SQ28W",
@@ -540,30 +706,53 @@ def resolve_base_folder(internal_name: str) -> str:
     if not base_folder:
         error(f"Unsupported internal name for UFS firmware: {internal_name}")
 
+    info(f"Resolved base folder: {base_folder}")
+
     return base_folder
+
 
 def resolve_ufs_base_folder(prompt: str, internal_name: str) -> str:
     key = internal_name.upper()
     is_go = prompt_contains(prompt, "go")
 
+    info(f"Resolve UFS base folder: internal_name={internal_name}, is_go={is_go}")
+
     if key == "SQ29MB":
         if is_go:
-            return "/os/i9100/SQ29MB(A13 go)"
-        return "/os/i9100/SQ29MB"
+            folder = "/os/i9100/SQ29MB(A13 go)"
+            info(f"Resolved UFS base folder: {folder}")
+            return folder
+
+        folder = "/os/i9100/SQ29MB"
+        info(f"Resolved UFS base folder: {folder}")
+        return folder
 
     if key == "SQ29MR":
         if is_go:
-            return "/os/i9100/SQ29MR(A13 go)"
-        return "/os/i9100/SQ29MR"
+            folder = "/os/i9100/SQ29MR(A13 go)"
+            info(f"Resolved UFS base folder: {folder}")
+            return folder
+
+        folder = "/os/i9100/SQ29MR"
+        info(f"Resolved UFS base folder: {folder}")
+        return folder
 
     if key == "SQ68":
         if is_go:
-            return "/os/i9200/SQ68A13GO"
-        return "/os/i9200/SQ68"
+            folder = "/os/i9200/SQ68A13GO"
+            info(f"Resolved UFS base folder: {folder}")
+            return folder
+
+        folder = "/os/i9200/SQ68"
+        info(f"Resolved UFS base folder: {folder}")
+        return folder
 
     return resolve_base_folder(internal_name)
 
+
 def find_customer_folder(base_folder: str, customer_name: str) -> str:
+    info(f"Find customer folder: base_folder={base_folder}, customer_name={customer_name}")
+
     output = sftp_ls(base_folder)
     entries = parse_sftp_ls_entries(output)
 
@@ -580,10 +769,14 @@ def find_customer_folder(base_folder: str, customer_name: str) -> str:
         if customer in folder.lower()
     ]
 
+    info(f"Customer folder candidates count: {len(folders)}")
+    info(f"Matched customer folders: {matched}")
+
     if not matched:
         error(f"No UFS folder found for customer '{customer_name}' under {base_folder}")
 
     if len(matched) == 1:
+        info(f"Selected customer folder: {matched[0]}")
         return matched[0]
 
     # Prefer folders that clearly look like UFS/custom folders
@@ -592,27 +785,50 @@ def find_customer_folder(base_folder: str, customer_name: str) -> str:
         if "ufs" in folder.lower() or "定制" in folder.lower() or "custom" in folder.lower()
     ]
 
+    info(f"Preferred customer folders: {preferred}")
+
     if len(preferred) == 1:
+        info(f"Selected preferred customer folder: {preferred[0]}")
         return preferred[0]
 
     if preferred:
         # If multiple still match, choose the longest name.
         # Usually the longer folder is more specific, e.g. "标准化版本 WUZI UFS定制包"
-        return sorted(preferred, key=len, reverse=True)[0]
+        selected = sorted(preferred, key=len, reverse=True)[0]
+        info(f"Selected longest preferred customer folder: {selected}")
+        return selected
 
-    return sorted(matched, key=len, reverse=True)[0]
+    selected = sorted(matched, key=len, reverse=True)[0]
+    info(f"Selected longest matched customer folder: {selected}")
+
+    return selected
+
 
 def handle_ufs(prompt: str, internal_name: str, customer_name: str) -> None:
+    info(f"Handle UFS firmware: prompt={prompt}, internal_name={internal_name}, customer_name={customer_name}")
+
     base_folder = resolve_ufs_base_folder(prompt, internal_name)
+    info(f"Resolved UFS base folder: {base_folder}")
+
     customer_folder_name = find_customer_folder(base_folder, customer_name)
+    info(f"Resolved customer folder name: {customer_folder_name}")
+
     target_folder = f"{base_folder.rstrip('/')}/{customer_folder_name}"
+    info(f"Resolved target folder: {target_folder}")
 
     firmware_path, size = find_latest_zip_in_sftp_folder(target_folder)
 
     prepare_firmware(firmware_path, size)
 
+
 def main() -> None:
+    info("============================================================")
+    info(f"{SCRIPT_NAME} started")
+    info(f"Log file: {get_log_path()}")
+    info(f"argv: {sys.argv}")
+
     if len(sys.argv) < 3:
+        info("Argument count too small")
         print("Usage:")
         print('  python3 fw.py os "<prompt>" "<firmware_type>"')
         print('  python3 fw.py ufs "<prompt>" "<customer_name>"')
@@ -622,16 +838,22 @@ def main() -> None:
     mode = sys.argv[1].strip().lower()
     prompt = sys.argv[2].strip()
 
+    info(f"Mode: {mode}")
+    info(f"Prompt: {prompt}")
+
     if mode not in {"os", "se", "ufs"}:
+        write_log("ERROR", f"Invalid mode: {mode}")
         print("Invalid mode. Use one of: os, se, ufs")
         sys.exit(1)
 
     if is_multiple_tasks(prompt):
+        write_log("ERROR", "Multi-task detected")
         print("Multi-task detected")
         sys.exit(1)
 
     internal_name = extract_internal_name(prompt)
     if not internal_name:
+        write_log("ERROR", "Internal name not found")
         print("Please enter an internal name(e.g., SQ53ST)")
         sys.exit(1)
 
@@ -640,23 +862,29 @@ def main() -> None:
 
     if mode == "os":
         if len(sys.argv) < 4:
+            write_log("ERROR", "Missing firmware_type for OS firmware")
             print("Please enter firmware_type for OS firmware")
             sys.exit(1)
 
         firmware_type = sys.argv[3].strip().lower()
+        info(f"Firmware type: {firmware_type}")
 
         if not firmware_type:
+            write_log("ERROR", "Empty firmware_type for OS firmware")
             print("Please enter firmware_type for OS firmware")
             sys.exit(1)
 
     elif mode == "ufs":
         if len(sys.argv) < 4:
+            write_log("ERROR", "Missing customer name for UFS firmware")
             print('Usage: python3 fw.py ufs "<prompt>" "<customer_name>"')
             sys.exit(1)
 
         customer_name = sys.argv[3].strip()
+        info(f"Customer name: {customer_name}")
 
         if not customer_name:
+            write_log("ERROR", "Empty customer name for UFS firmware")
             print("Please enter customer name for UFS firmware")
             sys.exit(1)
 
@@ -675,10 +903,14 @@ def main() -> None:
     elif mode == "ufs":
         handle_ufs(prompt, internal_name, customer_name)
 
+    info(f"{SCRIPT_NAME} finished successfully")
+    info("============================================================")
+
 
 if __name__ == "__main__":
     try:
         main()
     except Exception as exc:
+        error_log(exc)
         print(str(exc).strip())
         sys.exit(1)
