@@ -469,7 +469,7 @@ def resolve_os_folder(prompt: str, internal_name: str, firmware_type: str) -> st
         else:
             options = {
                 "fi": "/os/i9200/SQ68/标准化版本",
-                "in": "/os/i9200/SQ68/行业版本",
+                "in": "/os/i9200/SQ68/行业版本/带GMS",
             }
 
         return select_by_firmware_type(options, firmware_type)

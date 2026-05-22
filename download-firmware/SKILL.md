@@ -1,6 +1,6 @@
 ---
 name: download-firmware
-description: Download firmware | Upload firmware | get a firmware download link | 获取固件 | 下载固件 | 上传固件 | 获取固件链接 | 固件链接 | OS/UFS上传链接 | OS/UFS下载 | firmware link, firmware upload, firmware download.
+description: Download firmware | Upload firmware | get a firmware download link | 获取固件 | 下载固件 | 上传固件 | 获取固件链接 | 固件链接 | OS/UFS上传链接 | OS/UFS下载 | firmware link |firmware upload | firmware download | 需要固件/OS/UFS | 搞一个OS固件包 | 
 ---
 
 # Download Firmware Skill
@@ -20,13 +20,13 @@ Hermes only classifies the request and executes exactly one allowed Python comma
 The ONLY terminal command allowed by this skill is:
 
 ```bash
-python3 /Volumes/SSD1T/SharedFiles/hermes_workspace/scripts/get_firmware_link.py ...
+python3 /Users/patrickxu/.hermes/skills/download-firmware/scripts/get_firmware_link.py ...
 ```
 
 Only use this script:
 
 ```text
-/Volumes/SSD1T/SharedFiles/hermes_workspace/scripts/get_firmware_link.py
+/Users/patrickxu/.hermes/skills/download-firmware/scripts/get_firmware_link.py
 ```
 
 Only use this workspace:
@@ -203,21 +203,21 @@ Do not use the default 300-second timeout because firmware download/upload may t
 Execute exactly one terminal command:
 
 ```bash
-python3 /Volumes/SSD1T/SharedFiles/hermes_workspace/scripts/get_firmware_link.py os "<original_prompt>" "<firmware_type>"
+python3 /Users/patrickxu/.hermes/skills/download-firmware/scripts/get_firmware_link.py os "<original_prompt>" "<firmware_type>"
 ```
 
 Examples:
 
 ```bash
-python3 /Volumes/SSD1T/SharedFiles/hermes_workspace/scripts/get_firmware_link.py os "download SQ81A OS firmware" "overseas"
+python3 /Users/patrickxu/.hermes/skills/download-firmware/scripts/get_firmware_link.py os "download SQ81A OS firmware" "overseas"
 ```
 
 ```bash
-python3 /Volumes/SSD1T/SharedFiles/hermes_workspace/scripts/get_firmware_link.py os "download SQ65B financial firmware" "fi"
+python3 /Users/patrickxu/.hermes/skills/download-firmware/scripts/get_firmware_link.py os "download SQ65B financial firmware" "fi"
 ```
 
 ```bash
-python3 /Volumes/SSD1T/SharedFiles/hermes_workspace/scripts/get_firmware_link.py os "download SQ65B non-financial firmware" "in"
+python3 /Users/patrickxu/.hermes/skills/download-firmware/scripts/get_firmware_link.py os "download SQ65B non-financial firmware" "in"
 ```
 
 ### For UFS
@@ -225,13 +225,13 @@ python3 /Volumes/SSD1T/SharedFiles/hermes_workspace/scripts/get_firmware_link.py
 Execute exactly one terminal command:
 
 ```bash
-python3 /Volumes/SSD1T/SharedFiles/hermes_workspace/scripts/get_firmware_link.py ufs "<original_prompt>" "<custom_name>"
+python3 /Users/patrickxu/.hermes/skills/download-firmware/scripts/get_firmware_link.py ufs "<original_prompt>" "<custom_name>"
 ```
 
 Example:
 
 ```bash
-python3 /Volumes/SSD1T/SharedFiles/hermes_workspace/scripts/get_firmware_link.py ufs "download SQ27M WUZI UFS firmware" "WUZI"
+python3 /Users/patrickxu/.hermes/skills/download-firmware/scripts/get_firmware_link.py ufs "download SQ27M WUZI UFS firmware" "WUZI"
 ```
 
 ---
@@ -282,8 +282,18 @@ End the task immediately after returning the script output or script error outpu
 ### Model shorthand (missing SQ prefix)
 Users frequently say "65B" or "65F" instead of "SQ65B" or "SQ65F". The script's regex `sq[a-zA-Z0-9]*` requires the `SQ` prefix. Always check and prepend `SQ` if the user's shorthand is missing it.
 
+### SQ68 vs SQ68PN confusion
+SQ68 and SQ68PN are distinct models with different firmware paths:
+- SQ68: `/os/i9200/SQ68/标准化版本` (fi), `/os/i9200/SQ68/行业版本` (in) — NO "海外" variant in the path mapping
+- SQ68PN: `/os/i9200/SQ68PN/海外行业版` (in) — HAS "海外行业版"
+
+When the user requests "SQ68 海外行业版" (overseas industry version), the SQ68 `in` path (`/os/i9200/SQ68/行业版本`) may be empty or not contain the expected firmware. Consider clarifying with the user whether they meant SQ68PN instead, which has a dedicated "海外行业版" folder.
+
 ### Script returned wrong model's firmware
 The script may return another model's firmware (e.g., SQ65B link for SQ65F request). If the returned filename doesn't match the requested model, report this discrepancy to the user. Do NOT try to manually query SFTP — the script is the single source of truth per the hard rules.
+
+### SFTP operations can hang indefinitely
+The script's SFTP operations can hang for several minutes with no output (observed >600s with exit code 1). If a terminal process times out or hangs, kill it and report the situation to the user rather than waiting indefinitely.
 
 ### Background processes and SSHPASS
 The Python script sets SSHPASS internally via `os.environ`. If you ever need to run `sshpass` commands directly, the background terminal session won't inherit SSHPASS from the shell environment — the script's internal handling is the reliable path.
