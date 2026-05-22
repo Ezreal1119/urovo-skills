@@ -7,15 +7,23 @@ description: APP sign | APK sign | APP签名 | 签名APK | 签下名 | sign this
 
 ## Purpose
 
-Sign an APK using the local browser-based APK signature script, then upload the signed APK to Cloudflare R2.
+Sign a local APK using the browser-based APK signature script, upload the signed APK to Cloudflare R2, and return the public download link.
 
 ---
 
 ## When To Use
 
-Use this skill when:
+Use this skill when the user asks to sign an APK/APP and provides an explicit local APK path.
 
-- The user asks to sign an APK/APP
+Typical trigger words:
+
+- sign APK
+- APK signing
+- sign this APK
+- APP签名
+- APK签名
+- 签名
+- 签下名
 
 ---
 
@@ -28,11 +36,11 @@ Example:
 ```json
 {
   "user_prompt": "App 签名",
-  "quoted_file_path": "/Volumes/SSD1T/SharedFiles/hermes_workspace/xxx.apk"
+  "quoted_file_path": "/Volumes/SSD1T/SharedFiles/hermes_workspace/AQ.apk"
 }
 ```
 
-Always use the exact provided path.
+Always use the exact provided APK path.
 
 Do NOT:
 
@@ -43,187 +51,101 @@ Do NOT:
 
 ---
 
-## Output Rule
+## Execution Rule
 
-The signed APK must be generated as a new file.
+Run only this command:
+
+```bash
+node /Users/patrickxu/.hermes/skills/apk-sign/scripts/login_signature_system.js "$apk"
+```
+
+Where `$apk` is the exact APK path provided by the user.
 
 Example:
 
-Input:
+```bash
+node /Users/patrickxu/.hermes/skills/apk-sign/scripts/login_signature_system.js "/Volumes/SSD1T/SharedFiles/hermes_workspace/AQ.apk"
+```
+
+Do NOT run any other command.
+
+---
+
+## What The Script Does
+
+The script will automatically:
+
+1. Validate the APK path
+2. Check that the file exists
+3. Check that the file ends with `.apk`
+4. Generate the signed APK in the same folder
+
+Example:
 
 ```txt
-/Volumes/SSD1T/SharedFiles/hermes_workspace/AQ.apk
-```
+Input:
+AQ.apk
 
 Output:
+AQ_signed.apk
+```
+
+5. Open the browser-based signing system
+6. Upload the original APK
+7. Download the signed APK
+8. Upload the signed APK to Cloudflare R2
+9. Print the final download URL
+
+Expected final output:
 
 ```txt
-/Volumes/SSD1T/SharedFiles/hermes_workspace/AQ_signed.apk
+Signed APK uploaded successfully.
+DOWNLOAD_URL=https://temp.patrick-shenzhen.org/apk/AQ_signed.apk
 ```
-
-Never overwrite the original APK.
 
 ---
 
-## Execution Steps
+## Success Rule
 
-### Step 1 — Extract APK Path
-
-Extract the APK local path from the prompt.
-
-Example:
+If the command succeeds, extract the URL from the line starting with:
 
 ```txt
-/Volumes/SSD1T/SharedFiles/hermes_workspace/AQ.apk
+DOWNLOAD_URL=
 ```
 
-Verify:
+Then report the URL to the user.
 
-- the file exists
-- the path ends with `.apk`
-
-If not valid, stop and report the error.
-
----
-
-### Step 2 — Generate Signed APK Path
-
-Generate the signed APK path by adding `_signed` before `.apk`.
-
-Example:
-
-```bash
-apk="/Volumes/SSD1T/SharedFiles/hermes_workspace/AQ.apk"
-
-signed_file_name="$(basename "${apk%.apk}_signed.apk")"
-signed_apk="$(dirname "$apk")/$signed_file_name"
-```
-
-Result:
+Example response:
 
 ```txt
-/Volumes/SSD1T/SharedFiles/hermes_workspace/AQ_signed.apk
-```
-
----
-
-### Step 3 — Run APK Signing Script
-
-Run:
-
-```bash
-node /Users/patrickxu/.hermes/skills/apk-sign/scripts/login_signature_system.js "$apk" "$signed_file_name"
-```
-
-Expected flow:
-
-- open browser
-- login
-- upload APK
-- sign APK
-- download signed APK
-- close browser
-
-Expected output example:
-
-```txt
-[ACTION] Fill username
-[ACTION] Fill password
-[ACTION] Click login
-[ACTION] Open File signature management
-[ACTION] Click upload file
-[ACTION] Select APK: AQ.apk
-[ACTION] Click upload confirm
-[ACTION] Upload completed
-[ACTION] Click close dialog
-[ACTION] Click signature download
-Downloaded: /Volumes/SSD1T/SharedFiles/hermes_workspace/AQ_signed.apk
-Browser closed
-```
-
----
-
-### Step 4 — Verify Signed APK Exists
-
-Verify:
-
-```bash
-test -f "$signed_apk"
-```
-
-If the signed APK does not exist:
-
-- stop execution
-- report signing failure
-
----
-
-### Step 5 — Upload Signed APK To Cloudflare R2
-
-Run:
-
-```bash
-rclone copy "$signed_apk" r2:firmware/apk/ --s3-no-check-bucket -P
-```
-
-Expected result:
-
-- signed APK uploaded successfully
-- upload progress displayed
-
----
-
-### Step 6 — Report the download link to the user
-
-Generate the download URL using the signed APK file name only.
-
-```bash
-signed_file_name="$(basename "$signed_apk")"
-download_url="https://temp.patrick-shenzhen.org/apk/$signed_file_name"
-```
-
-Report:
-
-```text
 Signed APK uploaded successfully.
 
 Download link:
-<download_url>
+https://temp.patrick-shenzhen.org/apk/AQ_signed.apk
 ```
 
 ---
 
-## Full Command Template
+## Failure Rule
 
-```bash
-apk="/Volumes/SSD1T/SharedFiles/hermes_workspace/AQ.apk"
+If anything fails:
 
-signed_file_name="$(basename "${apk%.apk}_signed.apk")"
-signed_apk="$(dirname "$apk")/$signed_file_name"
-
-node ~/browser-agent/login_signature_system.js "$apk" "$signed_file_name"
-
-test -f "$signed_apk"
-
-rclone copy "$signed_apk" r2:firmware/apk/ --s3-no-check-bucket -P
-
-download_url="https://temp.patrick-shenzhen.org/apk/$signed_file_name"
-
-echo "$download_url"
-```
+- report the error message from the command output
+- do not retry
+- do not debug
+- do not run additional commands
+- end the task immediately
 
 ---
 
 ## Important Notes
 
-- You MUST NOT revise the script. End the task if the signing process failed.
-- Stop the end immediately if anything goes wrong. Don't try to debug by yourself.
-- Always quote file paths using double quotes
-- Never overwrite the original APK
-- Always generate a new `_signed.apk`
-- Stop immediately if signing fails
-- Stop immediately if the signed APK file does not exist
-- If upload fails, report the local signed APK path
-- Do not attempt to search for APK files automatically
-- Do not guess filenames
-- Only use the APK path explicitly provided in the prompt
+- Only execute the specified `node` command.
+- Do not revise the script.
+- Do not run `ls`, `find`, `pwd`, `test`, `rclone`, or any diagnostic command.
+- Do not run upload commands manually.
+- Do not search for APK files automatically.
+- Do not guess filenames.
+- Only use the APK path explicitly provided in the prompt.
+- The script handles signing, verification, upload, and URL generation internally.
+- If the script fails, stop immediately and report the error.

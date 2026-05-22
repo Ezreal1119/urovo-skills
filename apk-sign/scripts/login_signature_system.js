@@ -490,6 +490,26 @@ async function main() {
 
   const downloadUrl = await uploadToR2(savePath);
 
+  log(`Delete local APK files after upload`);
+
+  for (const filePath of [savePath, apkPath]) {
+    try {
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+        info(`Deleted local APK file: ${filePath}`);
+      } else {
+        info(`Local APK file already missing, skip delete: ${filePath}`);
+      }
+    } catch (err) {
+      writeLog(
+        "ERROR",
+        `Failed to delete local APK file after upload: ${filePath}\n${
+          err && err.stack ? err.stack : String(err)
+        }`,
+      );
+    }
+  }
+
   console.log("Signed APK uploaded successfully.");
   console.log(`DOWNLOAD_URL=${downloadUrl}`);
 
