@@ -303,7 +303,7 @@ async function main() {
   log("Launch browser");
 
   const browser = await chromium.launch({
-    headless: true,
+    headless: false,
   });
 
   log("Create browser context");
@@ -398,23 +398,72 @@ async function main() {
     force: true,
   });
 
-  await page.waitForTimeout(5000);
-
   let uploadFrame = null;
 
-  info("Current frames after normal Upload file click:");
+  log("Wait for upload dialog content");
 
-  uploadFrame = await findUploadFrame(page);
+  for (let i = 1; i <= 20; i++) {
+    info(`Check upload input attempt ${i}/20`);
 
-  // Fallback: if normal click did not open upload input
+    uploadFrame = await findUploadFrame(page);
+
+    if (uploadFrame) {
+      break;
+    }
+
+    const dialogCount = await page
+      .locator(".l-dialog, .l-window, .l-dialog-content")
+      .count()
+      .catch(() => 0);
+
+    const iframeCount = await page
+      .locator("iframe")
+      .count()
+      .catch(() => 0);
+
+    info(`Dialog count: ${dialogCount}`);
+    info(`Iframe count: ${iframeCount}`);
+
+    for (let j = 0; j < iframeCount; j++) {
+      const iframeInfo = await page
+        .locator("iframe")
+        .nth(j)
+        .evaluate((el) => {
+          return {
+            src: el.getAttribute("src"),
+            id: el.getAttribute("id"),
+            name: el.getAttribute("name"),
+            className: el.getAttribute("class"),
+            width: el.getAttribute("width"),
+            height: el.getAttribute("height"),
+          };
+        })
+        .catch((err) => ({
+          error: String(err),
+        }));
+
+      info(`Iframe ${j}: ${JSON.stringify(iframeInfo)}`);
+    }
+
+    await page.waitForTimeout(1000);
+  }
+
   if (!uploadFrame) {
-    log("Upload input not found after normal click, start fallback click");
+    log("Upload input still not found after waiting, start fallback click");
 
     await clickUploadFileFallback(page, signatureFrame);
 
-    info("Current frames after fallback Upload file click:");
+    for (let i = 1; i <= 10; i++) {
+      info(`Check upload input after fallback attempt ${i}/10`);
 
-    uploadFrame = await findUploadFrame(page);
+      uploadFrame = await findUploadFrame(page);
+
+      if (uploadFrame) {
+        break;
+      }
+
+      await page.waitForTimeout(1000);
+    }
   }
 
   if (!uploadFrame) {
@@ -476,6 +525,7 @@ async function main() {
     .locator(".l-dialog-btn-inner", {
       hasText: "Upload",
     })
+    .first()
     .click({
       force: true,
     });
