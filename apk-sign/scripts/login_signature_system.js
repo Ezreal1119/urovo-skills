@@ -324,13 +324,52 @@ async function main() {
 
   log("Click upload file");
 
-  await page.waitForTimeout(5000);
+  await page.waitForTimeout(3000);
 
-  await uploadBtn.click({
+  const uploadBtnReal = signatureFrame
+    .locator(".l-toolbar-item", {
+      hasText: "Upload file",
+    })
+    .first();
+
+  await uploadBtnReal.waitFor({
+    state: "visible",
+    timeout: 15000,
+  });
+
+  await uploadBtnReal.scrollIntoViewIfNeeded();
+
+  const box = await uploadBtnReal.boundingBox();
+
+  if (!box) {
+    throw new Error("Upload file button bounding box not found");
+  }
+
+  info(
+    `Upload file button box: x=${box.x}, y=${box.y}, width=${box.width}, height=${box.height}`,
+  );
+
+  // Method 1: normal click on center
+  await uploadBtnReal.click({
     force: true,
   });
 
-  await page.waitForTimeout(2000);
+  await page.waitForTimeout(1500);
+
+  // Method 2: click by mouse coordinate
+  await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+
+  await page.waitForTimeout(1500);
+
+  // Method 3: dispatch DOM events manually
+  await uploadBtnReal.evaluate((el) => {
+    el.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+    el.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+    el.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
+    el.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  });
+
+  await page.waitForTimeout(3000);
 
   let uploadFrame = null;
 
