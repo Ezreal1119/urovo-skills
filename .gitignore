@@ -28,3 +28,5 @@ software-development
 .usage.json
 .usage.json.lock
 .curator_backups/
+
+node_modules/
