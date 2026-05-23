@@ -182,6 +182,73 @@ async function uploadToR2(localPath, timeout = 1800 * 1000) {
   throw new Error(`Upload failed after 3 attempts:\n${lastError}`);
 }
 
+async function findUploadFrame(page) {
+  for (const frame of page.frames()) {
+    const fileInputCount = await frame
+      .locator('input[type="file"]')
+      .count()
+      .catch(() => 0);
+
+    info(`Frame URL: ${frame.url()}`);
+    info(`file input count: ${fileInputCount}`);
+
+    if (fileInputCount > 0) {
+      return frame;
+    }
+  }
+
+  return null;
+}
+
+async function clickUploadFileFallback(page, signatureFrame) {
+  log("Fallback: click Upload file with stronger methods");
+
+  const uploadBtnReal = signatureFrame
+    .locator(".l-toolbar-item", {
+      hasText: "Upload file",
+    })
+    .first();
+
+  await uploadBtnReal.waitFor({
+    state: "visible",
+    timeout: 15000,
+  });
+
+  await uploadBtnReal.scrollIntoViewIfNeeded();
+
+  const box = await uploadBtnReal.boundingBox();
+
+  if (!box) {
+    throw new Error("Upload file button bounding box not found");
+  }
+
+  info(
+    `Upload file button box: x=${box.x}, y=${box.y}, width=${box.width}, height=${box.height}`,
+  );
+
+  // Method 1: normal click
+  await uploadBtnReal.click({
+    force: true,
+  });
+
+  await page.waitForTimeout(1500);
+
+  // Method 2: mouse coordinate click
+  await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+
+  await page.waitForTimeout(1500);
+
+  // Method 3: dispatch DOM mouse events
+  await uploadBtnReal.evaluate((el) => {
+    el.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+    el.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+    el.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
+    el.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  });
+
+  await page.waitForTimeout(3000);
+}
+
 async function main() {
   const url = "https://sign.urovo.com:8083/SDBConsole/Login.action";
   const username = "xialiangliang";
@@ -324,72 +391,30 @@ async function main() {
 
   log("Click upload file");
 
-  await page.waitForTimeout(3000);
+  await page.waitForTimeout(5000);
 
-  const uploadBtnReal = signatureFrame
-    .locator(".l-toolbar-item", {
-      hasText: "Upload file",
-    })
-    .first();
-
-  await uploadBtnReal.waitFor({
-    state: "visible",
-    timeout: 15000,
-  });
-
-  await uploadBtnReal.scrollIntoViewIfNeeded();
-
-  const box = await uploadBtnReal.boundingBox();
-
-  if (!box) {
-    throw new Error("Upload file button bounding box not found");
-  }
-
-  info(
-    `Upload file button box: x=${box.x}, y=${box.y}, width=${box.width}, height=${box.height}`,
-  );
-
-  // Method 1: normal click on center
-  await uploadBtnReal.click({
+  // First try: normal click
+  await uploadBtn.first().click({
     force: true,
   });
 
-  await page.waitForTimeout(1500);
-
-  // Method 2: click by mouse coordinate
-  await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
-
-  await page.waitForTimeout(1500);
-
-  // Method 3: dispatch DOM events manually
-  await uploadBtnReal.evaluate((el) => {
-    el.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
-    el.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
-    el.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
-    el.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-  });
-
-  await page.waitForTimeout(3000);
+  await page.waitForTimeout(5000);
 
   let uploadFrame = null;
 
-  await page.waitForTimeout(5000);
+  info("Current frames after normal Upload file click:");
 
-  info("Current frames:");
+  uploadFrame = await findUploadFrame(page);
 
-  for (const frame of page.frames()) {
-    const fileInputCount = await frame
-      .locator('input[type="file"]')
-      .count()
-      .catch(() => 0);
+  // Fallback: if normal click did not open upload input
+  if (!uploadFrame) {
+    log("Upload input not found after normal click, start fallback click");
 
-    info(`Frame URL: ${frame.url()}`);
-    info(`file input count: ${fileInputCount}`);
+    await clickUploadFileFallback(page, signatureFrame);
 
-    if (fileInputCount > 0) {
-      uploadFrame = frame;
-      break;
-    }
+    info("Current frames after fallback Upload file click:");
+
+    uploadFrame = await findUploadFrame(page);
   }
 
   if (!uploadFrame) {
