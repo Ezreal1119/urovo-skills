@@ -532,14 +532,37 @@ async function main() {
 
   log("Wait for upload completed");
 
-  await uploadFrame
+  const uploadSuccessPromise = uploadFrame
     .getByText("Uploaded successfully", {
       exact: true,
     })
     .waitFor({
       state: "visible",
       timeout: 600000,
-    });
+    })
+    .then(() => "success");
+
+  const interfaceErrorPromise = uploadFrame
+    .getByText("Interface call error", {
+      exact: true,
+    })
+    .waitFor({
+      state: "visible",
+      timeout: 600000,
+    })
+    .then(() => "interface_error");
+
+  const uploadResult = await Promise.race([
+    uploadSuccessPromise,
+    interfaceErrorPromise,
+  ]);
+
+  info(`Upload result: ${uploadResult}`);
+
+  if (uploadResult === "interface_error") {
+    writeLog("ERROR", "Upload failed: Interface call error");
+    throw new Error("Upload failed: Interface call error");
+  }
 
   log("Upload completed");
 
