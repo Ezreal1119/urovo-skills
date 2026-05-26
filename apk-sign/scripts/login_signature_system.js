@@ -303,7 +303,7 @@ async function main() {
   log("Launch browser");
 
   const browser = await chromium.launch({
-    headless: false,
+    headless: true,
   });
 
   log("Create browser context");

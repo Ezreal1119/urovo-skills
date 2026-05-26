@@ -16,6 +16,10 @@ SFTP_OPTS = [
     "-oKexAlgorithms=+diffie-hellman-group1-sha1",
     "-oHostKeyAlgorithms=+ssh-rsa",
     "-oPubkeyAcceptedAlgorithms=+ssh-rsa",
+    "-oConnectTimeout=20",
+    "-oServerAliveInterval=15",
+    "-oServerAliveCountMax=3",
+    "-oBatchMode=no",
 ]
 
 os.environ["SSHPASS"] = "Udxb*24081914"
@@ -359,7 +363,7 @@ def sftp_quote(value: str) -> str:
     return '"' + value.replace("\\", "\\\\").replace('"', '\\"') + '"'
 
 
-def sftp_get(remote_path: str, expected_size: int, timeout: int = 1200) -> str:
+def sftp_get(remote_path: str, expected_size: int, timeout: int = 1800) -> str:
     info(f"Start SFTP get: {remote_path}")
     info(f"Expected size: {expected_size}")
 
@@ -392,8 +396,17 @@ def sftp_get(remote_path: str, expected_size: int, timeout: int = 1200) -> str:
 
     # 2. Remove stale temp file
     if os.path.exists(temp_path):
-        info(f"Remove stale temp file: {temp_path}")
-        os.remove(temp_path)
+        partial_size = os.path.getsize(temp_path)
+        info(f"Existing temp file found, will try to resume: {temp_path}, size={partial_size}")
+
+        if partial_size == expected_size:
+            info("Existing temp file size matches expected size, promote to final file")
+            os.replace(temp_path, final_path)
+            return final_path
+
+        if partial_size > expected_size:
+            info("Existing temp file is larger than expected, remove corrupted temp file")
+            os.remove(temp_path)
 
     # 3. Download to .part first
     try:
@@ -401,15 +414,17 @@ def sftp_get(remote_path: str, expected_size: int, timeout: int = 1200) -> str:
         run_sftp(
             [
                 f"cd {sftp_quote(remote_dir)}",
-                f"get {sftp_quote(firmware_file_name)} {sftp_quote(temp_path)}",
+                f"reget {sftp_quote(firmware_file_name)} {sftp_quote(temp_path)}",
             ],
             timeout=timeout,
         )
     except Exception as exc:
         write_log("ERROR", f"SFTP download failed: {exc}")
+
         if os.path.exists(temp_path):
-            info(f"Remove temp file after download failure: {temp_path}")
-            os.remove(temp_path)
+            partial_size = os.path.getsize(temp_path)
+            info(f"Keep temp file for resume: {temp_path}, size={partial_size}")
+
         raise
 
     # 4. Verify temp file
@@ -420,7 +435,15 @@ def sftp_get(remote_path: str, expected_size: int, timeout: int = 1200) -> str:
     info(f"Downloaded temp file size: {temp_size}")
 
     if temp_size != expected_size:
-        info("Downloaded temp file size mismatch, remove temp file")
+        if temp_size < expected_size:
+            info("Downloaded temp file is incomplete, keep temp file for resume")
+            error(
+                f"Download incomplete: "
+                f"expected={expected_size}, actual={temp_size}. "
+                f"Temp file is kept for resume."
+            )
+
+        info("Downloaded temp file is larger than expected, remove corrupted temp file")
         os.remove(temp_path)
         error(
             f"Download failed: file size mismatch. "
